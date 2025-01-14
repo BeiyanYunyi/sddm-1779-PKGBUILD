@@ -2,7 +2,8 @@
 # Maintainer: Antonio Rojas <arojas@archlinux.org>
 # Contributor: Andrea Scarpino <andrea@archlinux.org>
 
-pkgname=sddm
+originalpkgname=sddm
+pkgname=sddm-BeiyanYunyi
 pkgver=0.21.0
 pkgrel=6
 pkgdesc='QML based X11 and Wayland display manager'
@@ -33,12 +34,20 @@ backup=('usr/share/sddm/scripts/Xsetup'
         'etc/pam.d/sddm'
         'etc/pam.d/sddm-autologin'
         'etc/pam.d/sddm-greeter')
-provides=(display-manager)
-source=(https://github.com/$pkgname/$pkgname/archive/v$pkgver/$pkgname-$pkgver.tar.gz)
-sha256sums=('f895de2683627e969e4849dbfbbb2b500787481ca5ba0de6d6dfdae5f1549abf')
+conflicts=(sddm)
+provides=(display-manager sddm)
+source=(https://github.com/$originalpkgname/$originalpkgname/archive/v$pkgver/$originalpkgname-$pkgver.tar.gz
+        https://github.com/sddm/sddm/pull/1779.patch)
+sha256sums=('f895de2683627e969e4849dbfbbb2b500787481ca5ba0de6d6dfdae5f1549abf'
+            '7cce46811559bdeeb465f278f9b4736cca8a658d1df6f858af5b7a70efbdd5aa')
+
+
+prepare() {
+  patch -d $originalpkgname-$pkgver -Np1 -i ../1779.patch
+}
 
 build() {
-  cmake -B build -S $pkgname-$pkgver \
+  cmake -B build -S $originalpkgname-$pkgver \
         -DCMAKE_INSTALL_PREFIX=/usr \
         -DCMAKE_INSTALL_LIBEXECDIR=/usr/lib/sddm \
         -DBUILD_WITH_QT6=ON \
@@ -48,7 +57,7 @@ build() {
         -DUID_MAX=60513
   cmake --build build
 
-  cmake -B build5 -S $pkgname-$pkgver \
+  cmake -B build5 -S $originalpkgname-$pkgver \
         -DCMAKE_INSTALL_PREFIX=/usr
   cmake --build build5/src/greeter
   cmake --build build5/components
